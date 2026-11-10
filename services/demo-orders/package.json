@@ -1,0 +1,18 @@
+{
+  "name": "demo-orders",
+  "version": "1.0.0",
+  "description": "KubeSentinel demo orders service",
+  "main": "index.js",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^5.3.0",
+    "prom-client": "^15.1.3",
+    "redis": "^4.7.0"
+  }
+}
