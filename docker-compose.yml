@@ -1,0 +1,36 @@
+services:
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  payments:
+    build: ./services/demo-payments
+    environment:
+      PORT: "3002"
+
+  orders:
+    build: ./services/demo-orders
+    environment:
+      PORT: "3001"
+      REDIS_URL: redis://redis:6379
+      PAYMENTS_URL: http://payments:3002
+    depends_on:
+      redis:
+        condition: service_healthy
+      payments:
+        condition: service_healthy
+
+  api:
+    build: ./services/demo-api
+    environment:
+      PORT: "3000"
+      ORDERS_URL: http://orders:3001
+    ports:
+      - "3000:3000"
+    depends_on:
+      orders:
+        condition: service_healthy
