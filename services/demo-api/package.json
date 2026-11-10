@@ -1,0 +1,17 @@
+{
+  "name": "demo-api",
+  "version": "1.0.0",
+  "description": "KubeSentinel demo API gateway service",
+  "main": "index.js",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^5.3.0",
+    "prom-client": "^15.1.3"
+  }
+}
