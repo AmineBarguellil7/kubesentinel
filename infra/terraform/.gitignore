@@ -1,0 +1,10 @@
+# Local Terraform working files
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+!example.tfvars
+
+# kubeconfig written by the kind provider (contains cluster credentials)
+*-config
