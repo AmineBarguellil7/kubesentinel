@@ -17,3 +17,13 @@ output "endpoint" {
   description = "Kubernetes API server endpoint."
   value       = kind_cluster.this.endpoint
 }
+
+output "argocd_namespace" {
+  description = "Namespace Argo CD runs in."
+  value       = helm_release.argocd.namespace
+}
+
+output "argocd_chart_version" {
+  description = "Installed argo-cd chart version."
+  value       = helm_release.argocd.version
+}

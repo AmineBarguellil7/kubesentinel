@@ -38,3 +38,21 @@ variable "listen_address" {
   type        = string
   default     = "127.0.0.1"
 }
+
+variable "argocd_namespace" {
+  description = "Namespace Argo CD is installed into."
+  type        = string
+  default     = "argocd"
+}
+
+variable "argocd_chart_version" {
+  description = "Version of the argo-cd Helm chart (https://argoproj.github.io/argo-helm)."
+  type        = string
+  default     = "10.18.0"
+}
+
+variable "root_app_manifest_url" {
+  description = "URL of the root (app-of-apps) Application manifest, applied once Argo CD is installed."
+  type        = string
+  default     = "https://raw.githubusercontent.com/AmineBarguellil7/kubesentinel-gitops/main/bootstrap/root-app.yaml"
+}

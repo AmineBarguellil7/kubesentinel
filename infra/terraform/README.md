@@ -81,3 +81,58 @@ Changing any of these replaces the cluster: kind cannot modify a running cluster
 | `cluster_name`       | Cluster name                             |
 | `kubeconfig_path`    | Path of the standalone kubeconfig file   |
 | `endpoint`           | API server endpoint                      |
+
+## Argo CD
+
+`apply` also installs Argo CD into the `argocd` namespace with the
+[`argo-cd`](https://github.com/argoproj/argo-helm/tree/main/charts/argo-cd) Helm chart
+(settings in `argocd-values.yaml`), then applies the root "app of apps" from the
+[kubesentinel-gitops](https://github.com/AmineBarguellil7/kubesentinel-gitops) repo
+(`bootstrap/root-app.yaml`). From there Argo CD deploys everything under `apps/` in that repo.
+
+This step needs `kubectl` on the PATH and network access to GitHub.
+
+```bash
+kubectl -n argocd get pods
+kubectl -n argocd get applications     # expect Synced / Healthy
+```
+
+Open the UI at https://localhost:8081 (self-signed certificate, user `admin`):
+
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d; echo
+kubectl -n argocd port-forward svc/argocd-server 8081:443
+```
+
+## Deploying workloads
+
+Nothing in this repo is applied to the cluster with `kubectl`. What runs in the cluster is defined
+only in [kubesentinel-gitops](https://github.com/AmineBarguellil7/kubesentinel-gitops): change a
+manifest there, push to `main`, and Argo CD syncs it (and reverts manual changes in the cluster).
+
+The demo images are still built from this repo, because they are loaded into kind rather than
+pushed to a registry. From the repo root:
+
+```bash
+make cluster-up       # terraform init + apply: kind cluster, Argo CD, root app
+make images           # build kubesentinel-demo-{payments,orders,api}:dev and kind load them
+make gitops-status    # Argo CD applications with sync and health status
+make status           # nodes, and the demo deployments, pods and services
+make cluster-down     # terraform destroy
+```
+
+On a fresh cluster, run `make images` right after `make cluster-up`; until the images are loaded
+the demo pods sit in `ErrImagePull`/`ImagePullBackOff` and the `demo` application shows `Progressing`.
+
+After rebuilding an image under the same `dev` tag, restart its deployment to pick it up:
+
+```bash
+make images
+kubectl -n demo rollout restart deployment/orders
+```
+
+| Variable                | Default                                  | Description                               |
+| ----------------------- | ---------------------------------------- | ----------------------------------------- |
+| `argocd_namespace`      | `argocd`                                 | Namespace Argo CD is installed into       |
+| `argocd_chart_version`  | `10.18.0`                                | argo-cd chart version                     |
+| `root_app_manifest_url` | `bootstrap/root-app.yaml` on GitHub raw  | Root Application applied after install    |
