@@ -120,6 +120,12 @@ app.get('/health', async (req, res) => {
   }
 });
 
+// Liveness: only proves the process can answer HTTP. Deliberately no Redis check,
+// so a Redis outage marks the pod NotReady (via /health) without restarting it.
+app.get('/livez', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
 app.get('/metrics', async (req, res) => {
   res.set('Content-Type', client.register.contentType);
   res.end(await client.register.metrics());
